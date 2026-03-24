@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(venv/bin/pip install:*)",
+      "Bash(venv/bin/python:*)",
+      "Bash(/home/bk/Desktop/aiHackathon2026/luman-claude/run.sh:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "WebFetch(domain:www.conjoon.org)",
+      "Bash(lsof:*)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(timeout 10 ./venv/bin/streamlit run:*)",
+      "Bash(timeout 12 ./venv/bin/streamlit run:*)",
+      "Bash(python:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}
