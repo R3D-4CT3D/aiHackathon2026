@@ -136,7 +136,7 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 
 /* ── top chrome  (dark shell applied via column-bg below) ───────────────── */
 .lm-chrome {
-  height: 48px;
+  height: 56px;
   background: var(--shell);
   border-bottom: 1px solid var(--shell-border);
   display: flex; align-items: center;
@@ -144,15 +144,15 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
   position: sticky; top: 0; z-index: 200;
 }
 .lm-chrome-logo {
-  width: 28px; height: 28px; border-radius: 6px;
+  width: 33px; height: 33px; border-radius: 6px;
   background: linear-gradient(135deg,#4ab8a0 0%,#1d3c38 100%);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.78rem; font-weight: 800; color: white;
+  font-size: 0.94rem; font-weight: 800; color: white;
   flex-shrink: 0;
 }
-.lm-chrome-brand { color: #ddeae7; font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; }
+.lm-chrome-brand { color: #ddeae7; font-size: 1.26rem; font-weight: 700; letter-spacing: -0.01em; }
 .lm-chrome-sep   { width: 1px; height: 20px; background: rgba(255,255,255,0.10); }
-.lm-chrome-sub   { color: var(--sidebar-txt); font-size: 0.74rem; }
+.lm-chrome-sub   { color: var(--sidebar-txt); font-size: 0.90rem; }
 .lm-chrome-right { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
 .lm-stat         { display:flex; flex-direction:column; align-items:flex-end; line-height:1; }
 .lm-stat-n       { color: #ddeae7; font-size: 0.88rem; font-weight: 700; }
@@ -1346,6 +1346,20 @@ def render_analysis_panel(email: dict | None) -> None:
         unsafe_allow_html=True,
     )
 
+    # Consequences awareness nudge — only shown for non-Safe emails
+    if email.get("status") != "Safe":
+        st.markdown(
+            "<div style='font-size:0.76rem;color:var(--muted);line-height:1.55;"
+            "padding:0.55rem 0.65rem;margin:0.5rem 0 0.2rem;"
+            "border-left:3px solid #c0392b;background:rgba(192,57,43,0.06);"
+            "border-radius:0 4px 4px 0;'>"
+            "Phishing scams can lead to identity theft, financial loss, and account takeover. "
+            "<a href='https://consumer.ftc.gov/articles/what-do-if-you-were-scammed' "
+            "target='_blank' style='color:#c0392b;font-weight:600;'>Learn what's at stake and how to protect yourself →</a>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
     # Report Phishing — only shown for non-Safe emails
     if email.get("status") != "Safe":
         _e_subject   = email.get("subject", "Suspicious message")
@@ -1503,6 +1517,20 @@ def _render_result_block(result: dict) -> None:
         + actions_html(result["recommended_actions"]),
         unsafe_allow_html=True,
     )
+
+    if result.get("verdict") != "Safe":
+        st.markdown(
+            "<div style='font-size:0.76rem;color:var(--muted);line-height:1.55;"
+            "padding:0.55rem 0.65rem;margin:0.5rem 0 0.2rem;"
+            "border-left:3px solid #c0392b;background:rgba(192,57,43,0.06);"
+            "border-radius:0 4px 4px 0;'>"
+            "Phishing scams can lead to identity theft, financial loss, and account takeover. "
+            "<a href='https://consumer.ftc.gov/articles/what-do-if-you-were-scammed' "
+            "target='_blank' style='color:#c0392b;font-weight:600;'>Learn what's at stake and how to protect yourself →</a>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
     rep = result.get("reputation")
     if rep:
         st.markdown(rep_card_html(rep), unsafe_allow_html=True)

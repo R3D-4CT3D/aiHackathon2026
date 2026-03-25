@@ -75,15 +75,17 @@ SAMPLE_EMAILS = [
         "body": [
             "Hello,",
             "Your package could not be delivered because the address on file appears incomplete. Please confirm your address today so the package can be released from our holding facility.",
+            "Confirm your delivery address here: http://mail.dmgratis.claimff18.my.id/paypal.com",
+            "You may also check your delivery status and available offers at: https://bestdeals.com.gh/blackboard",
             "If you were expecting a delivery, it would be safer to visit the shipping company's official website directly rather than using the link in this message.",
             "Thank you,",
             "QuickShip Support",
         ],
-        "simulated_link": "quickship-notify.co/confirm-address",
+        "simulated_link": "mail.dmgratis.claimff18.my.id/paypal.com",
         "technical_signals": {
             "urgency": True,
             "credential_request": True,
-            "domain_mismatch": False,
+            "domain_mismatch": True,
             "shortened_link": False,
         },
     },
@@ -117,10 +119,13 @@ SAMPLE_EMAILS = [
         "body": [
             "Employee notice,",
             "Your direct deposit has been placed on hold due to a profile mismatch. To avoid a delayed paycheck, review your payroll settings immediately using the secure employee portal below.",
+            "Access the employee portal now: http://mail.deliverylifesupport.com/public/iqe6Vs1h0wAgx7VmAVXhqjnzH8RM6Cdf",
+            "For account support and identity verification visit: http://www.xfinitycare.free.site.pro",
+            "Additional account tools: http://zmazom.cc",
             "Failure to act within 2 hours may result in payment interruption.",
             "Payroll Services",
         ],
-        "simulated_link": "company-payroll.help/verify-now",
+        "simulated_link": "mail.deliverylifesupport.com/public/iqe6Vs1h0wAgx7VmAVXhqjnzH8RM6Cdf",
         "technical_signals": {
             "urgency": True,
             "credential_request": True,
@@ -197,10 +202,12 @@ SAMPLE_EMAILS = [
         "explanation": "The sender domain does not match official DocuSign. If you were expecting paperwork, verify it directly on the official DocuSign site before opening anything.",
         "body": [
             "Please review and sign the attached internship agreement at your earliest convenience.",
+            "Open and complete your document here: https://bestconsultinternational.com/assistance",
+            "Document reference and terms: https://www.boutique-dofus.fr/mmorpg/actualites/recompenses/grimoire/succes",
             "If you were not expecting this request, pause before opening anything and confirm with the organization that supposedly sent it.",
             "DocuSign Notification Center",
         ],
-        "simulated_link": "docusign-mailer.net/open-document",
+        "simulated_link": "bestconsultinternational.com/assistance",
         "technical_signals": {
             "urgency": False,
             "credential_request": False,
@@ -238,10 +245,13 @@ SAMPLE_EMAILS = [
         "body": [
             "Security alert,",
             "We detected a sign-in attempt from an unrecognized device in a new location. To secure your account, reset your password immediately using the link below.",
+            "Reset your password now: http://zoom-call29072025callerid9237xzue07930conference-secured.s3-bkk.nipa.cloud/owa.html",
+            "Join our security verification session: http://freefire1117842.keyyfirezy.biz.id",
+            "Confirm your identity via secure message: http://www.whatsaap.xyz",
             "If you do not reset your password within 15 minutes, your account may be temporarily suspended for your safety.",
             "IT Security Team",
         ],
-        "simulated_link": "corp-helpdesk.info/reset-password",
+        "simulated_link": "zoom-call29072025callerid9237xzue07930conference-secured.s3-bkk.nipa.cloud/owa.html",
         "technical_signals": {
             "urgency": True,
             "credential_request": True,
