@@ -76,6 +76,7 @@ def inject_styles() -> None:
 <style>
 /* ── tokens ──────────────────────────────────────────────────────────────── */
 :root {
+  --col-hdr-h:    2.5rem;    /* shared height token — all three column headers */
   --shell:        #1b2333;   /* conjoon-style near-black nav shell          */
   --shell-border: #111827;
   --sidebar:      #222e3a;   /* sidebar, slightly lighter than shell        */
@@ -168,7 +169,7 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 [data-testid="stTabs"] button[role="tab"] {
   border-radius: 0 !important; margin: 0 !important;
   font-size: 0.82rem !important; font-weight: 600 !important;
-  padding: 0.6rem 1.1rem !important;
+  padding: 0.92rem 1.1rem !important;
   color: var(--sidebar-txt) !important;
   border-bottom: 2px solid transparent !important;
 }
@@ -180,35 +181,34 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 }
 [data-testid="stTabs"] [data-testid="stTabsContent"] { padding: 0 !important; }
 
-/* ── column backgrounds + button styling — INBOX TAB ONLY ───────────────── */
-/* Scoped to [data-baseweb="tab-panel"]:first-child so these rules never bleed
-   into the Analyze Message or Check Link tabs.                               */
+/* ── column backgrounds — scoped via :has() markers injected per column ──── */
+/* Each render function injects an invisible lm-col-* sentinel div.          */
+/* :has() is supported in all modern browsers and does not depend on         */
+/* Streamlit's internal tab-panel DOM structure.                              */
 
-/* col 1 = sidebar */
-[data-baseweb="tab-panel"]:first-child
-  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1) {
+[data-testid="stColumn"]:has(.lm-col-sb) {
   background: var(--sidebar) !important;
   border-right: 2px solid var(--sidebar-hi) !important;
-  min-height: calc(100vh - 110px);
+  min-height: calc(100vh - 96px) !important;
 }
-/* col 2 = message list */
-[data-baseweb="tab-panel"]:first-child
-  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) {
+[data-testid="stColumn"]:has(.lm-col-list) {
   background: var(--list-bg) !important;
   border-right: 1px solid var(--list-line) !important;
-  min-height: calc(100vh - 110px);
+  min-height: calc(100vh - 96px) !important;
 }
-/* col 3+ = reading / analysis */
-[data-baseweb="tab-panel"]:first-child
-  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(n+3) {
+[data-testid="stColumn"]:has(.lm-col-read) {
   background: var(--pane-bg) !important;
-  min-height: calc(100vh - 110px);
+  border-right: 1px solid var(--panel-line) !important;
+  min-height: calc(100vh - 96px) !important;
 }
-/* analysis panel (col 4) gets panel bg */
-[data-baseweb="tab-panel"]:first-child
-  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(4) {
+[data-testid="stColumn"]:has(.lm-col-panel) {
   background: var(--panel-bg) !important;
   border-left: 1px solid var(--panel-line) !important;
+  min-height: calc(100vh - 96px) !important;
+}
+/* sentinel divs are invisible */
+.lm-col-sb, .lm-col-list, .lm-col-read, .lm-col-panel {
+  display: none;
 }
 
 /* ── sidebar buttons ─────────────────────────────────────────────────────── */
@@ -341,10 +341,11 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 /* ── expanders ───────────────────────────────────────────────────────────── */
 [data-testid="stExpander"] {
   border: 1px solid var(--panel-line) !important;
-  border-radius: 5px !important;
+  border-radius: 8px !important;
   background: white !important;
-  margin-top: 0.6rem !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+  margin-top: 0 !important;
+  margin-bottom: 10px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
 }
 [data-testid="stExpander"] summary {
   font-size: 0.72rem !important; font-weight: 700 !important;
@@ -378,29 +379,31 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 /* ── list header ─────────────────────────────────────────────────────────── */
 .lm-list-hdr {
   background: var(--list-bg); border-bottom: 1px solid var(--list-line);
-  padding: 0.48rem 0.8rem;
+  padding: 0 0.9rem;
+  height: var(--col-hdr-h); min-height: var(--col-hdr-h); box-sizing: border-box;
   display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0;
+  position: sticky; top: 0; z-index: 10;
 }
-.lm-list-hdr-title { font-size: 0.70rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
-.lm-list-hdr-count { font-size: 0.70rem; color: var(--muted-soft); }
+.lm-list-hdr-title { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+.lm-list-hdr-count { font-size: 0.78rem; color: var(--muted-soft); }
 
 /* chip inside row */
 .lm-row-chip-wrap { display: flex; justify-content: flex-end; padding: 0 0.75rem 0.4rem 0.8rem; }
 .lm-chip {
   display: inline-flex; align-items: center; gap: 0.32rem;
-  padding: 0.16rem 0.5rem; border-radius: 3px;
-  font-size: 0.68rem; font-weight: 700; white-space: nowrap;
+  padding: 0.2rem 0.6rem; border-radius: 3px;
+  font-size: 0.76rem; font-weight: 700; white-space: nowrap;
 }
 .lm-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.75; }
 
 /* ── reading pane ─────────────────────────────────────────────────────────── */
 .lm-pane-hdr {
-  background: #f7f9f7; border-bottom: 1px solid var(--line);
-  padding: 0.5rem 1rem;
+  background: var(--list-bg);
+  padding: 0.5rem 0.9rem;
   display: flex; align-items: center; justify-content: space-between;
+  /* border handled by parent toolbar row so it spans full column width */
 }
-.lm-breadcrumb { font-size: 0.70rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-soft); }
+.lm-breadcrumb { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted-soft); }
 .lm-pane-actions { display: flex; gap: 0.4rem; align-items: center; }
 .lm-action-ghost {
   font-size: 0.75rem; font-weight: 600; color: var(--muted);
@@ -418,7 +421,7 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 }
 .lm-meta-l { color: var(--muted-soft); font-size: 0.70rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding-top: 0.1rem; white-space: nowrap; }
 .lm-meta-v { color: var(--text-soft); }
-.lm-divider { height: 1px; background: var(--line-soft); margin: 0 1rem; }
+.lm-divider { height: 1px; background: var(--list-line); margin: 0; }
 .lm-risk-bar {
   display: flex; gap: 0.6rem; align-items: flex-start;
   padding: 0.6rem 1rem; border-bottom: 1px solid;
@@ -449,34 +452,15 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
   border-color: var(--muted-soft) !important;
   background: rgba(0,0,0,0.02) !important;
 }
-/* ── panel expand button (col 4 header) ──────────────────────────────────── */
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(4)
-  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2)
-  [data-testid="stButton"] button {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-size: 0.68rem !important;
-  font-weight: 600 !important;
-  color: var(--muted-soft) !important;
-  min-height: unset !important;
-  padding: 0.15rem 0.4rem !important;
-  text-align: right !important;
-  justify-content: flex-end !important;
-}
-[data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(4)
-  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2)
-  [data-testid="stButton"] button:hover {
-  color: var(--accent) !important;
-}
 /* ── analysis panel ──────────────────────────────────────────────────────── */
 .lm-panel-hdr {
-  background: #eef1ee; border-bottom: 1px solid var(--panel-line);
-  padding: 0.52rem 0.9rem;
+  background: var(--list-bg);
+  padding: 0.5rem 0.9rem;
   display: flex; align-items: center; gap: 0.48rem;
+  /* border handled by parent header row so it spans full column width */
 }
 .lm-panel-hdr-badge { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.lm-panel-hdr-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); }
+.lm-panel-hdr-title { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
 .lm-panel-body { padding: 0.8rem 0.9rem 1.2rem; }
 .lm-verdict {
   border-radius: 6px; border: 1px solid;
@@ -492,12 +476,22 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 .lm-conf-val { font-size: 0.74rem; font-weight: 600; opacity: 0.85; }
 .lm-conf-track { height: 3px; border-radius: 999px; background: rgba(0,0,0,0.08); overflow: hidden; }
 .lm-conf-fill  { height: 100%; border-radius: 999px; opacity: 0.7; }
-/* Section headers: clear separators, not competing for attention */
+/* Section headers */
 .lm-section-hdr {
-  font-size: 0.60rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
-  color: var(--muted-soft); padding: 0.85rem 0 0.28rem;
-  border-bottom: 1px solid var(--panel-line); margin-bottom: 0.12rem;
+  font-size: 0.76rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--muted); padding: 0.85rem 0 0.45rem;
+  border-bottom: 1px solid var(--panel-line); margin-bottom: 0.35rem;
 }
+/* Card wrapper — used by each named section in the analysis panel */
+.lm-card {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid var(--panel-line);
+  padding: 0.9rem 1rem;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.lm-card .lm-section-hdr { padding-top: 0; }
 /* Reasons: readable, slightly more weight than actions */
 .lm-reason { display: flex; gap: 0.55rem; padding: 0.44rem 0; font-size: 0.83rem; color: var(--text); line-height: 1.52; border-bottom: 1px solid var(--line-soft); }
 .lm-reason:last-child { border-bottom: none; }
@@ -510,6 +504,20 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 .lm-sig:last-child { border-bottom: none; }
 .lm-sig-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .lm-sig-status { margin-left: auto; font-size: 0.68rem; font-weight: 600; color: var(--muted-soft); }
+
+/* ── Disabled primary CTA — always visible, never faded to nothing ────────── */
+/* Streamlit/BaseWeb applies opacity:0.4 on :disabled at high specificity.  */
+/* We must (1) cancel that opacity entirely, then (2) paint an explicit      */
+/* muted colour so the button looks intentionally inactive, not absent.     */
+[data-testid="stButton"] button[kind="primary"]:disabled,
+[data-testid="stButton"] button[kind="primary"][disabled] {
+  opacity: 1 !important;
+  background: #6d9e99 !important;   /* desaturated accent — clearly "off"  */
+  border-color: #6d9e99 !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
 
 /* ── Analyze Message / Check Link tabs (centered, constrained) ───────────── */
 .lm-analyze-wrap {
@@ -567,12 +575,13 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 
 /* ── feedback section ────────────────────────────────────────────────────── */
 .lm-feedback-card {
-  margin: 1.0rem 0 0.5rem;
-  padding: 0.7rem 0.85rem 0.75rem;
+  margin: 0 0 10px;
+  padding: 0.9rem 1rem;
   background: #f0f7f5;
-  border: 1px solid #c8ddd8;
+  border: 1px solid var(--panel-line);
   border-left: 3px solid var(--accent);
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 .lm-feedback-card .lm-section-hdr {
   color: var(--accent); padding-top: 0; border-bottom-color: #c8ddd8;
@@ -587,9 +596,237 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 }
 
 /* ── demo mode ───────────────────────────────────────────────────────────── */
-.sb-demo-wrap  { padding: 0.5rem 0.9rem 0.55rem; border-top: 1px solid rgba(255,255,255,0.07); }
-.sb-demo-label { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: rgba(155,178,172,0.65); margin-bottom: 0.45rem; }
-.sb-demo-status { font-size: 0.72rem; color: var(--sidebar-txt); margin-top: 0.35rem; line-height: 1.4; }
+.sb-demo-wrap  { padding: 0.65rem 0.9rem 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); }
+.sb-demo-label { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: rgba(155,178,172,0.65); margin-bottom: 0.5rem; }
+.sb-demo-status { font-size: 0.72rem; color: var(--sidebar-txt); margin-top: 0.45rem; line-height: 1.5; }
+
+/* ── :has() button rules — version-proof alternatives to tab-panel scoping ── */
+
+/* sidebar (col 1) */
+[data-testid="stColumn"]:has(.lm-col-sb) [data-testid="stButton"] button {
+  background: transparent !important; box-shadow: none !important;
+  border: none !important; border-left: 3px solid transparent !important;
+  border-radius: 0 !important; padding: 0.42rem 0.9rem !important;
+  text-align: left !important; justify-content: flex-start !important;
+  color: var(--sidebar-txt) !important; font-size: 0.85rem !important;
+  font-weight: 500 !important; min-height: unset !important; width: 100% !important;
+}
+[data-testid="stColumn"]:has(.lm-col-sb) [data-testid="stButton"] button:hover {
+  background: rgba(255,255,255,0.06) !important; color: #ccddd9 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-sb) [data-testid="stButton"] button[kind="primary"] {
+  background: var(--sidebar-sel) !important;
+  border-left-color: var(--sidebar-hi) !important; color: #ddeae7 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-sb) [data-testid="stButton"] button p {
+  color: inherit !important;
+}
+
+/* message list (col 2) */
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button {
+  background: var(--row-bg) !important; box-shadow: none !important;
+  border: none !important;
+  border-bottom: 1px solid var(--list-line) !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 0.55rem 0.75rem 1.65rem 0.8rem !important;
+  text-align: left !important; justify-content: flex-start !important;
+  color: var(--text) !important; font-size: 0.83rem !important;
+  font-weight: 400 !important; min-height: 72px !important;
+  width: 100% !important; line-height: 1.45 !important;
+  white-space: pre-line !important;
+}
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button:hover {
+  background: var(--row-hover) !important;
+}
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button[kind="primary"] {
+  background: var(--row-sel) !important;
+  border-left-color: var(--row-sel-line) !important;
+}
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button p {
+  color: inherit !important; white-space: pre-line !important;
+  font-size: 0.83rem !important; line-height: 1.45 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="element-container"],
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stMarkdownContainer"] {
+  margin-bottom: 0 !important; margin-top: 0 !important;
+}
+
+/* reading pane (col 3) — action buttons */
+[data-testid="stColumn"]:has(.lm-col-read) [data-testid="stButton"] button {
+  background: #f3f5f3 !important; box-shadow: none !important;
+  border: 1px solid var(--line) !important; border-radius: 4px !important;
+  padding: 0 0.75rem !important; min-height: 1.95rem !important;
+  font-size: 0.78rem !important; font-weight: 600 !important;
+  color: var(--muted) !important;
+}
+[data-testid="stColumn"]:has(.lm-col-read) [data-testid="stButton"] button:hover {
+  background: #eaeeea !important; color: var(--text) !important;
+}
+/* reading pane toggle (nested col 2) */
+[data-testid="stColumn"]:has(.lm-col-read)
+  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2)
+  [data-testid="stButton"] button {
+  background: white !important; border: 1px solid var(--line) !important;
+  border-radius: 3px !important; padding: 0.22rem 0.65rem !important;
+  min-height: unset !important; height: 1.75rem !important;
+  font-size: 0.75rem !important; font-weight: 600 !important;
+  color: var(--muted) !important; box-shadow: none !important;
+  width: auto !important; opacity: 0.85; margin-top: 0.32rem !important;
+}
+[data-testid="stColumn"]:has(.lm-col-read)
+  [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2)
+  [data-testid="stButton"] button:hover {
+  background: #f3f5f3 !important; color: var(--text) !important; opacity: 1;
+}
+/* reading pane code/caption padding */
+[data-testid="stColumn"]:has(.lm-col-read) [data-testid="stCodeBlock"],
+[data-testid="stColumn"]:has(.lm-col-read) [data-testid="stCaptionContainer"] {
+  margin-left: 1rem !important; margin-right: 1rem !important;
+}
+
+/* analysis panel (col 4) — buttons */
+[data-testid="stColumn"]:has(.lm-col-panel) [data-testid="stButton"] button {
+  background: white !important; box-shadow: none !important;
+  border: 1px solid var(--panel-line) !important; border-radius: 4px !important;
+  color: var(--text-soft) !important; font-size: 0.78rem !important;
+  font-weight: 500 !important; min-height: 1.9rem !important;
+  padding: 0 0.6rem !important; width: 100% !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel) [data-testid="stButton"] button:hover {
+  background: var(--panel-bg) !important;
+  border-color: var(--accent) !important; color: var(--text) !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel) [data-testid="stButton"] button[kind="primary"] {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important; color: white !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel) [data-testid="stButton"] button[kind="primary"]:hover {
+  background: var(--accent-hi) !important; border-color: var(--accent-hi) !important;
+}
+/* analysis panel markdown padding */
+[data-testid="stColumn"]:has(.lm-col-panel) [data-testid="stMarkdownContainer"] {
+  padding-left: 0.85rem !important; padding-right: 0.85rem !important;
+}
+/* analysis panel expand button (header row nested col 2) — match Hide/Show style */
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:has(.lm-panel-hdr) > [data-testid="stColumn"]:nth-child(2)
+  [data-testid="stButton"] button {
+  background: white !important; border: 1px solid var(--line) !important;
+  border-radius: 3px !important; padding: 0.22rem 1.1rem !important;
+  min-height: unset !important; height: 1.75rem !important;
+  font-size: 0.75rem !important; font-weight: 600 !important;
+  color: var(--muted) !important; box-shadow: none !important;
+  width: 100% !important; opacity: 0.85; margin-top: 0.32rem !important;
+  white-space: nowrap !important; overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:has(.lm-panel-hdr) > [data-testid="stColumn"]:nth-child(2)
+  [data-testid="stButton"] button:hover {
+  background: #f3f5f3 !important; color: var(--text) !important; opacity: 1;
+}
+
+/* ── Collapse sentinel marker containers to zero height ─────────────────── */
+/* The lm-col-* divs are display:none, but their stMarkdownContainer parent  */
+/* can still occupy vertical space. Kill that space in all four columns.     */
+[data-testid="stMarkdownContainer"]:has(.lm-col-sb),
+[data-testid="stMarkdownContainer"]:has(.lm-col-list),
+[data-testid="stMarkdownContainer"]:has(.lm-col-read),
+[data-testid="stMarkdownContainer"]:has(.lm-col-panel) {
+  margin: 0 !important; padding: 0 !important;
+  min-height: 0 !important; max-height: 0 !important;
+  height: 0 !important; overflow: hidden !important;
+  line-height: 0 !important;
+}
+
+/* ── Normalize reading pane vertical spacing — match inbox list column ────── */
+/* The list column already collapses element-container margins to 0.         */
+/* Apply the same here so both columns start content at the exact same y.   */
+[data-testid="stColumn"]:has(.lm-col-read) [data-testid="element-container"],
+[data-testid="stColumn"]:has(.lm-col-read) [data-testid="stMarkdownContainer"] {
+  margin-bottom: 0 !important; margin-top: 0 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-read) > div:first-child {
+  padding-top: 0 !important; gap: 0 !important;
+}
+
+/* ── Message column: header row spans full column width + shared height ───── */
+[data-testid="stColumn"]:has(.lm-col-read)
+  [data-testid="stHorizontalBlock"]:has(.lm-pane-hdr) {
+  background: var(--list-bg) !important;
+  border-bottom: 1px solid var(--list-line) !important;
+  min-height: var(--col-hdr-h) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+[data-testid="stColumn"]:has(.lm-col-read)
+  [data-testid="stHorizontalBlock"]:has(.lm-pane-hdr) > [data-testid="stColumn"] {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* ── Panel column: flush header to top, preserve section breathing room ──── */
+/* Only remove the top padding — do NOT zero out gap, sections need it.     */
+[data-testid="stColumn"]:has(.lm-col-panel) > div:first-child {
+  padding-top: 0 !important;
+}
+
+/* ── Security Analysis column: header row spans full column width + shared height */
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:has(.lm-panel-hdr) {
+  background: var(--list-bg) !important;
+  border-bottom: 1px solid var(--list-line) !important;
+  min-height: var(--col-hdr-h) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:has(.lm-panel-hdr) > [data-testid="stColumn"] {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* ── Feedback buttons: uniform size, clearly outlined in green/red ──────── */
+/* Exclude the header row (which also has a button) using :not(:has(.lm-panel-hdr)) */
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:not(:has(.lm-panel-hdr)):has([data-testid="stButton"])
+  > [data-testid="stColumn"]:nth-child(1) [data-testid="stButton"] button,
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:not(:has(.lm-panel-hdr)):has([data-testid="stButton"])
+  > [data-testid="stColumn"]:nth-child(2) [data-testid="stButton"] button {
+  min-height: 2.3rem !important;
+  width: 100% !important;
+  font-size: 0.80rem !important;
+  padding: 0 0.75rem !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:not(:has(.lm-panel-hdr)):has([data-testid="stButton"])
+  > [data-testid="stColumn"]:nth-child(1) [data-testid="stButton"] button {
+  background: white !important;
+  border: 1.5px solid #27ae60 !important;
+  color: #155a30 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:not(:has(.lm-panel-hdr)):has([data-testid="stButton"])
+  > [data-testid="stColumn"]:nth-child(2) [data-testid="stButton"] button {
+  background: white !important;
+  border: 1.5px solid #c0392b !important;
+  color: #7a1f18 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:not(:has(.lm-panel-hdr)):has([data-testid="stButton"])
+  > [data-testid="stColumn"]:nth-child(1) [data-testid="stButton"] button:hover {
+  background: #f0faf5 !important;
+}
+[data-testid="stColumn"]:has(.lm-col-panel)
+  [data-testid="stHorizontalBlock"]:not(:has(.lm-panel-hdr)):has([data-testid="stButton"])
+  > [data-testid="stColumn"]:nth-child(2) [data-testid="stButton"] button:hover {
+  background: #fdf1f0 !important;
+}
 
 @keyframes lm-new-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -1020,6 +1257,7 @@ def _demo_restart() -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_sidebar() -> None:
+    st.markdown("<div class='lm-col-sb'></div>", unsafe_allow_html=True)
     counts = folder_counts()
 
     st.markdown(
@@ -1101,6 +1339,7 @@ def render_sidebar() -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_email_list(emails: list[dict]) -> None:
+    st.markdown("<div class='lm-col-list'></div>", unsafe_allow_html=True)
     folder = st.session_state.selected_folder
     st.markdown(
         f"<div class='lm-list-hdr'>"
@@ -1145,6 +1384,7 @@ def render_email_list(emails: list[dict]) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_email_view(email: dict | None) -> None:
+    st.markdown("<div class='lm-col-read'></div>", unsafe_allow_html=True)
     if not email:
         st.markdown(
             "<div style='display:flex;align-items:center;justify-content:center;"
@@ -1219,19 +1459,8 @@ def render_email_view(email: dict | None) -> None:
     body_html = "".join(f"<p class='lm-p'>{p}</p>" for p in email["body"])
     st.markdown(f"<div class='lm-body'>{body_html}</div>", unsafe_allow_html=True)
 
-    # ── simulated link ────────────────────────────────────────────────────
-    st.markdown("<div class='lm-link-section'>", unsafe_allow_html=True)
-    st.markdown("<div class='lm-link-label'>Link in message</div>", unsafe_allow_html=True)
-    if email["status"] == "Likely Phishing":
-        st.markdown(
-            "<div class='lm-link-blocked'>"
-            "<strong>Link blocked.</strong> "
-            "This link is displayed for review only and cannot be clicked."
-            "</div>",
-            unsafe_allow_html=True,
-        )
-    st.code(email["simulated_link"], language=None)
-    st.markdown("</div>", unsafe_allow_html=True)
+    # "Link in message" removed — links are surfaced in the Link Reputation
+    # section of the analysis panel, which is the authoritative place.
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1291,6 +1520,7 @@ def _render_feedback_section(email: dict) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_analysis_panel(email: dict | None) -> None:
+    st.markdown("<div class='lm-col-panel'></div>", unsafe_allow_html=True)
     if not st.session_state.panel_open:
         return
 
@@ -1299,7 +1529,7 @@ def render_analysis_panel(email: dict | None) -> None:
 
     # Panel header with expand toggle
     expand_icon = "⟵ Collapse" if st.session_state.panel_wide else "⟷ Expand"
-    ph_left, ph_right = st.columns([3, 1], gap="small")
+    ph_left, ph_right = st.columns([2.2, 1.8], gap="small")
     with ph_left:
         st.markdown(
             f"<div class='lm-panel-hdr'>"
@@ -1336,13 +1566,17 @@ def render_analysis_panel(email: dict | None) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
+        "<div class='lm-card'>"
         "<div class='lm-section-hdr'>Why this verdict</div>"
-        + reasons_html(email["top_reasons"]),
+        + reasons_html(email["top_reasons"])
+        + "</div>",
         unsafe_allow_html=True,
     )
     st.markdown(
+        "<div class='lm-card'>"
         "<div class='lm-section-hdr'>What to do next</div>"
-        + actions_html(email["recommended_actions"]),
+        + actions_html(email["recommended_actions"])
+        + "</div>",
         unsafe_allow_html=True,
     )
 
@@ -1408,6 +1642,7 @@ Please investigate the sender address and any links contained in this message.
         mailto_href = f"mailto:reportphishing@apwg.org?{_mailto_params}"
 
         st.markdown(
+            "<div class='lm-card'>"
             "<div class='lm-section-hdr'>Report This Message</div>"
             "<div style='font-size:0.77rem;color:var(--muted);margin-bottom:0.6rem;line-height:1.5;'>"
             "Opens your email app with a pre-written report addressed to the "
@@ -1428,6 +1663,7 @@ Please investigate the sender address and any links contained in this message.
             "font-size:0.75rem;color:var(--accent);text-decoration:none;"
             "border:1px solid var(--accent);border-radius:4px;"
             "padding:0.2rem 0.5rem;white-space:nowrap;'>FBI IC3 ↗</a>"
+            "</div>"
             "</div>",
             unsafe_allow_html=True,
         )
@@ -1508,13 +1744,17 @@ def _render_result_block(result: dict) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
+        "<div class='lm-card'>"
         "<div class='lm-section-hdr'>Why this verdict</div>"
-        + reasons_html(result["top_reasons"]),
+        + reasons_html(result["top_reasons"])
+        + "</div>",
         unsafe_allow_html=True,
     )
     st.markdown(
+        "<div class='lm-card'>"
         "<div class='lm-section-hdr'>What to do next</div>"
-        + actions_html(result["recommended_actions"]),
+        + actions_html(result["recommended_actions"])
+        + "</div>",
         unsafe_allow_html=True,
     )
 
