@@ -195,6 +195,18 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
   background: var(--list-bg) !important;
   border-right: 1px solid var(--list-line) !important;
   min-height: calc(100vh - 96px) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+/* Kill padding on every wrapper Streamlit nests inside the list column */
+[data-testid="stColumn"]:has(.lm-col-list) > div,
+[data-testid="stColumn"]:has(.lm-col-list) > div > *,
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stVerticalBlock"],
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stVerticalBlockBorderWrapper"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 [data-testid="stColumn"]:has(.lm-col-read) {
   background: var(--pane-bg) !important;
@@ -283,9 +295,9 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
 /* chip overlays the bottom of each row button */
 .lm-row-chip-wrap {
   position: relative; z-index: 2;
-  margin-top: -1.5rem !important;
-  margin-bottom: 0.15rem !important;
-  padding: 0 0.75rem 0 0.8rem;
+  margin-top: -2.45rem !important;
+  margin-bottom: 0 !important;
+  padding: 0 0.9rem 0 0.45rem;
   pointer-events: none;
 }
 
@@ -629,11 +641,11 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
   border-bottom: 1px solid var(--list-line) !important;
   border-left: 3px solid transparent !important;
   border-radius: 0 !important;
-  padding: 0.55rem 0.75rem 1.65rem 0.8rem !important;
+  padding: 0.9rem 0.9rem 2.6rem 0.75rem !important;
   text-align: left !important; justify-content: flex-start !important;
-  color: var(--text) !important; font-size: 0.83rem !important;
-  font-weight: 400 !important; min-height: 72px !important;
-  width: 100% !important; line-height: 1.45 !important;
+  color: var(--text) !important; font-size: 0.92rem !important;
+  font-weight: 400 !important; min-height: 136px !important;
+  width: 100% !important; line-height: 1.62 !important;
   white-space: pre-line !important;
 }
 [data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button:hover {
@@ -643,10 +655,57 @@ hr { border-color: var(--line-soft) !important; margin: 0 !important; }
   background: var(--row-sel) !important;
   border-left-color: var(--row-sel-line) !important;
 }
-[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button p {
-  color: inherit !important; white-space: pre-line !important;
-  font-size: 0.83rem !important; line-height: 1.45 !important;
+/* ── Unified left rail for inbox row text ───────────────────────────────── */
+/* Strip every layer between the button edge and the text nodes so sender,  */
+/* subject, and preview all share one clean left origin.                    */
+
+/* 1. stMarkdownContainer inside the button: Streamlit default styles may   */
+/*    add horizontal padding here; zero all sides so the button's own       */
+/*    padding-left (0.9rem) becomes the sole left offset.                   */
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"]
+  [data-testid="stMarkdownContainer"] {
+  margin: 0 !important; padding: 0 !important;
 }
+
+/* 2. Inner div wrapper — override Streamlit's flex centering so all rows   */
+/*    start from the same left edge regardless of text length / wrapping.   */
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button > div {
+  margin: 0 !important; padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+}
+
+/* 3. p: the text block itself — zero all sides, set typography              */
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button p {
+  margin: 0 !important; padding: 0 !important;
+  text-indent: 0 !important;
+  text-align: left !important;
+  width: 100% !important;
+  color: var(--text) !important; white-space: pre-line !important;
+  font-size: 0.88rem !important; line-height: 1.62 !important;
+  font-weight: 400 !important;
+}
+
+/* 4. Subject: <strong> from markdown **text** — inline, no extra offset     */
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button p strong {
+  margin: 0 !important; padding: 0 !important;
+  font-weight: 700 !important;
+  font-size: 0.94rem !important;
+  color: var(--text) !important;
+}
+
+/* 5. Sender/time first line: muted and slightly smaller                     */
+[data-testid="stColumn"]:has(.lm-col-list) [data-testid="stButton"] button p::first-line {
+  font-size: 0.79rem !important;
+  color: var(--muted-soft) !important;
+  font-weight: 400 !important;
+}
+
+/* Zero out Streamlit's default spacing between row elements */
+[data-testid="stColumn"]:has(.lm-col-list) > div:first-child { gap: 0 !important; }
 [data-testid="stColumn"]:has(.lm-col-list) [data-testid="element-container"],
 [data-testid="stColumn"]:has(.lm-col-list) [data-testid="stMarkdownContainer"] {
   margin-bottom: 0 !important; margin-top: 0 !important;
@@ -1357,10 +1416,10 @@ def render_email_list(emails: list[dict]) -> None:
         selected  = email["id"] == ss.selected_email_id
         is_new    = _is_fresh and email["id"] == _new_id
         received  = email.get("received") or "Just now"
-        # Three-line conjoon-style label: sender·time / subject / preview
+        # Three-line label: sender·time / subject (bold via markdown) / preview
         label = (
             f"{email['sender_email']}  ·  {received}\n"
-            f"{email['subject']}\n"
+            f"**{email['subject']}**\n"
             f"{email['preview']}"
         )
         st.button(
